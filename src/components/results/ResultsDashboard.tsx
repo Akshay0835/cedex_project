@@ -4,9 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   TrendingDown, Share2, AlertTriangle, BadgeAlert, CheckCircle2, 
-  Sparkles, DollarSign, Calendar, Mail, ArrowUpRight, Copy, Check 
+  Sparkles, DollarSign, Calendar, Copy, Check 
 } from 'lucide-react';
 import { AuditResult } from '@/types/audit';
+import LeadCaptureForm from './LeadCaptureForm';
 
 interface ResultsDashboardProps {
   auditResult: AuditResult;
@@ -25,8 +26,6 @@ export default function ResultsDashboard({ auditResult }: ResultsDashboardProps)
   const [aiSummary, setAiSummary] = useState<string>('');
   const [loadingSummary, setLoadingSummary] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
-  const [emailSubmitted, setEmailSubmitted] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
 
   useEffect(() => {
     async function fetchSummary() {
@@ -60,12 +59,6 @@ export default function ResultsDashboard({ auditResult }: ResultsDashboardProps)
     }
   };
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.trim()) {
-      setEmailSubmitted(true);
-    }
-  };
 
   return (
     <div className="space-y-10 pb-20">
@@ -209,98 +202,14 @@ export default function ResultsDashboard({ auditResult }: ResultsDashboardProps)
           )}
         </motion.div>
 
-        {/* Right: Conditional CTA Card */}
+        {/* Right: Unified Lead Capture & Save Audit Form */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass-card p-6 bg-gradient-to-br from-secondary/40 to-card flex flex-col justify-center border-emerald-500/10"
+          className="lg:col-span-1"
         >
-          {totalMonthlySavings > 500 ? (
-            /* High Savings CTA: Book Credex Consultation */
-            <div className="space-y-6 text-center lg:text-left">
-              <div className="space-y-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
-                  Critical Savings Target
-                </span>
-                <h4 className="text-xl font-bold text-foreground">Unlock Enterprise Savings</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Your team is wasting over <strong>$500/month</strong>. Book a fast-track consultation with a Cedex Spend Architect to automate your software procurement and negotiations.
-                </p>
-              </div>
-              <a
-                href="https://cedex.ai/consultation"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg font-semibold bg-primary hover:bg-primary-hover text-primary-foreground shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all cursor-pointer"
-              >
-                Book Credex Consultation
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
-            </div>
-          ) : totalMonthlySavings < 100 ? (
-            /* Low Savings CTA: You're Optimized + Email Opt-in */
-            <div className="space-y-5">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-primary">
-                  <CheckCircle2 className="h-5 w-5" />
-                  <span className="text-sm font-bold uppercase tracking-wider">You're Optimized!</span>
-                </div>
-                <h4 className="text-base font-semibold text-foreground">SaaS Spend in Check</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Your AI spend configurations are extremely efficient. Want to get notified when AI tool pricing models change so you stay optimized?
-                </p>
-              </div>
-
-              {emailSubmitted ? (
-                <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg text-xs text-primary font-medium text-center">
-                  Subscribed! We will keep you updated.
-                </div>
-              ) : (
-                <form onSubmit={handleEmailSubmit} className="space-y-2">
-                  <div className="relative">
-                    <input
-                      type="email"
-                      required
-                      placeholder="Enter your work email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-secondary border border-border rounded-lg text-xs py-2.5 pl-8 pr-4 outline-none focus:border-primary/50 text-foreground transition-all"
-                    />
-                    <Mail className="absolute left-2.5 top-3 h-3.5 w-3.5 text-muted" />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs py-2 rounded-lg transition-colors cursor-pointer"
-                  >
-                    Keep Me Optimized
-                  </button>
-                </form>
-              )}
-            </div>
-          ) : (
-            /* Mid Savings CTA: Regular consultation opt-in */
-            <div className="space-y-5">
-              <div className="space-y-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-xs font-semibold">
-                  Moderate Waste
-                </span>
-                <h4 className="text-lg font-bold text-foreground">Consolidate & Save</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  You are losing up to <strong>${totalMonthlySavings}/month</strong>. We can help you transition to clean team rates.
-                </p>
-              </div>
-              <a
-                href="https://cedex.ai/consultation"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg font-semibold bg-secondary hover:bg-secondary-hover text-secondary-foreground transition-all cursor-pointer border border-border"
-              >
-                Schedule Spend Review
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
-            </div>
-          )}
+          <LeadCaptureForm auditResult={auditResult} />
         </motion.div>
       </div>
 

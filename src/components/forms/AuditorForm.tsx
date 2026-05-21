@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -11,18 +11,16 @@ import { UserPayload } from '@/types/audit';
 import { encodePayload } from '@/lib/encoding';
 import { PRICING_DATA } from '@/constants/pricing';
 
-const STORAGE_KEY = 'saaslytics_form_state';
-
 const initialPayload: UserPayload = {
   companyName: '',
   teamSize: 1,
   primaryUseCase: 'general',
   tools: {
-    cursor: { tier: 'none', seats: 1 },
-    chatgpt: { tier: 'none', seats: 1 },
-    claude: { tier: 'none', seats: 1 },
-    gemini: { tier: 'none', seats: 1 },
-    copilot: { tier: 'none', seats: 1 },
+    cursor: { tier: 'none', seats: 0 },
+    chatgpt: { tier: 'none', seats: 0 },
+    claude: { tier: 'none', seats: 0 },
+    gemini: { tier: 'none', seats: 0 },
+    copilot: { tier: 'none', seats: 0 },
   },
 };
 
@@ -38,28 +36,12 @@ export default function AuditorForm() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [payload, setPayload] = useState<UserPayload>(initialPayload);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>('');
 
-  // Load from localStorage on mount
+  const payloadRef = useRef(payload);
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setPayload(JSON.parse(saved));
-      } catch (e) {
-        console.error('Failed to parse saved state:', e);
-      }
-    }
-    setIsLoaded(true);
-  }, []);
-
-  // Save to localStorage whenever payload changes
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    }
-  }, [payload, isLoaded]);
+    payloadRef.current = payload;
+  }, [payload]);
 
   const handleNext = () => {
     if (step === 1 && !payload.companyName.trim()) {
@@ -93,7 +75,7 @@ export default function AuditorForm() {
         setScanStatus(statuses[currentStatusIndex]);
       } else {
         clearInterval(interval);
-        const encoded = encodePayload(payload);
+        const encoded = encodePayload(payloadRef.current);
         router.push(`/results/${encoded}`);
       }
     }, 800);
@@ -102,10 +84,15 @@ export default function AuditorForm() {
   const updateToolTier = (toolKey: keyof UserPayload['tools'], tier: string) => {
     setPayload((prev) => {
       const updatedTools = { ...prev.tools };
-      const defaultSeats = tier === 'none' ? 0 : prev.teamSize;
+      let newSeats = updatedTools[toolKey].seats;
+      if (tier === 'none') {
+        newSeats = 0;
+      } else if (newSeats === 0 || prev.tools[toolKey].tier === 'none') {
+        newSeats = prev.teamSize;
+      }
       updatedTools[toolKey] = {
         tier,
-        seats: updatedTools[toolKey].seats > 0 ? updatedTools[toolKey].seats : defaultSeats,
+        seats: newSeats,
       };
       return { ...prev, tools: updatedTools };
     });
@@ -122,13 +109,20 @@ export default function AuditorForm() {
     });
   };
 
-  if (!isLoaded) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const updateTeamSize = (newSize: number) => {
+    setPayload((prev) => {
+      const updatedTools = { ...prev.tools };
+      Object.keys(updatedTools).forEach((key) => {
+        const toolKey = key as keyof UserPayload['tools'];
+        if (updatedTools[toolKey].seats === prev.teamSize || (updatedTools[toolKey].seats === 1 && prev.teamSize === 1)) {
+          if (updatedTools[toolKey].tier !== 'none') {
+            updatedTools[toolKey].seats = newSize;
+          }
+        }
+      });
+      return { ...prev, teamSize: newSize, tools: updatedTools };
+    });
+  };
 
   // Slide transition config
   const slideVariants = {
@@ -221,7 +215,7 @@ export default function AuditorForm() {
                     type="number"
                     min="1"
                     value={payload.teamSize}
-                    onChange={(e) => setPayload({ ...payload, teamSize: Math.max(1, parseInt(e.target.value) || 1) })}
+                    onChange={(e) => updateTeamSize(Math.max(1, parseInt(e.target.value) || 1))}
                     className="w-32 bg-secondary border border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/30 rounded-lg py-2.5 px-4 outline-none transition-all text-center font-semibold"
                   />
                   <span className="text-sm text-muted-foreground">
