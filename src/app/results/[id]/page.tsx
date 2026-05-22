@@ -5,6 +5,7 @@ import { ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react';
 import { decodePayload } from '@/lib/encoding';
 import { runAudit } from '@/lib/audit-engine';
 import ResultsDashboard from '@/components/results/ResultsDashboard';
+import Navbar from '@/components/Navbar';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -105,25 +106,7 @@ export default async function ResultsPage({ params }: PageProps) {
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-accent/5 blur-[150px] pointer-events-none" />
 
       {/* Header */}
-      <header className="border-b border-border/40 backdrop-blur-md sticky top-0 z-50 bg-background/80">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
-            <span className="h-9 w-9 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center font-bold text-background text-lg shadow-lg shadow-primary/20">
-              S
-            </span>
-            <span className="font-extrabold text-xl font-sans tracking-tight bg-gradient-to-r from-white to-muted-foreground bg-clip-text text-transparent">
-              SaaSlytics
-            </span>
-          </Link>
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-all"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Auditor
-          </Link>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Content */}
       <main className="flex-grow max-w-6xl w-full mx-auto px-4 py-10 relative z-10">

@@ -1,4 +1,5 @@
 import AuditorForm from '@/components/forms/AuditorForm';
+import Navbar from '@/components/Navbar';
 import { ShieldAlert, Sparkles, TrendingDown } from 'lucide-react';
 
 export default function Home() {
@@ -9,26 +10,7 @@ export default function Home() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-accent/5 blur-[150px] pointer-events-none" />
 
       {/* Header / Nav */}
-      <header className="border-b border-border/40 backdrop-blur-md sticky top-0 z-50 bg-background/80">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <span className="h-9 w-9 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center font-bold text-background text-lg shadow-lg shadow-primary/20">
-              S
-            </span>
-            <span className="font-extrabold text-xl font-sans tracking-tight bg-gradient-to-r from-white to-muted-foreground bg-clip-text text-transparent">
-              SaaSlytics
-            </span>
-          </div>
-          <div className="hidden sm:flex items-center gap-6">
-            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              How it Works
-            </a>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary border border-border text-primary uppercase tracking-wider">
-              v1.0 (MVP)
-            </span>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Main Hero & Form */}
       <main className="flex-grow max-w-6xl w-full mx-auto px-4 py-12 md:py-20 space-y-16">
@@ -48,7 +30,7 @@ export default function Home() {
         </div>
 
         {/* Auditor Form */}
-        <section className="relative z-10">
+        <section id="auditor-form" className="relative z-10">
           <AuditorForm />
         </section>
 
